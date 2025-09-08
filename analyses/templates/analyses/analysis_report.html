@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h2>تقرير التحليل</h2>
+<table>
+    <tr><th>اسم التحليل</th><td>{{ analysis.test.name }}</td></tr>
+    <tr><th>المريض</th><td>{{ analysis.patient.name }}</td></tr>
+    <tr><th>النتيجة</th><td>{{ analysis.result }}</td></tr>
+    <tr><th>الوحدة</th><td>{{ analysis.test.unit }}</td></tr>
+    <tr><th>المدى المرجعي</th><td>{{ analysis.test.reference_range }}</td></tr>
+    <tr><th>تاريخ التحليل</th><td>{{ analysis.date }}</td></tr>
+    <tr><th>ملاحظات</th><td>{{ analysis.notes }}</td></tr>
+</table>
+<button onclick="window.print()">طباعة</button>
+<a href="{% url 'analysis_pdf' analysis.id %}" target="_blank">حفظ كـ PDF</a>
+{% endblock %}

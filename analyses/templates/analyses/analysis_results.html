@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h2>نتائج التحاليل</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">بحث</button>
+</form>
+{% if message %}
+    <p style="color:red">{{ message }}</p>
+{% endif %}
+{% if pdf_url %}
+    <a href="{{ pdf_url }}" target="_blank">معاينة/تنزيل نتيجة التحليل PDF</a>
+{% endif %}
+{% endblock %}

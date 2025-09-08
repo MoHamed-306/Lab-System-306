@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block branding %}
+  <h1 id="site-name">
+    {% if user.is_authenticated %}
+      <span style="color:#4fc3f7;font-size:22px;">مرحباً، {{ user.username }}</span>
+    {% endif %}
+  </h1>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>البحث عن مريض بالرقم القومي</h2>
+<form method="get" action="">
+    <input type="text" name="national_id" placeholder="ادخل الرقم القومي" required>
+    <button type="submit">بحث</button>
+</form>
+{% if patient %}
+    <h3>بيانات المريض:</h3>
+    <ul>
+        <li>الاسم: {{ patient.name }}</li>
+        <li>العمر: {{ patient.age }}</li>
+        <li>النوع: {{ patient.get_gender_display }}</li>
+        <li>الرقم القومي: {{ patient.national_id }}</li>
+        <li>اسم الدكتور: {{ patient.doctor_name }}</li>
+        <li>رقم الهاتف: {{ patient.phone }}</li>
+        <li>العنوان: {{ patient.address }}</li>
+        <li>تاريخ الإنشاء: {{ patient.created_at }}</li>
+    </ul>
+{% elif national_id %}
+    <p style="color:red">لا يوجد مريض بهذا الرقم القومي.</p>
+{% endif %}
+{% endblock %}
