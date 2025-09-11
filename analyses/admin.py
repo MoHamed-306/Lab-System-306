@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.db import models
 from .models import Analysis, TestCatalog, AnalysisResultsLink
+from .admin_analysis_request import *
+from .admin_todays_analysis import *
 
 @admin.register(TestCatalog)
 class TestCatalogAdmin(admin.ModelAdmin):
@@ -36,6 +38,16 @@ class AnalysisAdmin(admin.ModelAdmin):
     autocomplete_fields = ['patient', 'test']
     exclude = ('user',)
 
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        patient_id = request.GET.get('patient')
+        test_id = request.GET.get('test')
+        if patient_id:
+            initial['patient'] = patient_id
+        if test_id:
+            initial['test'] = test_id
+        return initial
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -46,6 +58,22 @@ class AnalysisAdmin(admin.ModelAdmin):
         if not change:
             obj.user = request.user
         super().save_model(request, obj, form, change)
+
+        # بعد حفظ التحليل، إذا كان هناك TodaysAnalysis مرتبط بنفس الطلب، يتم تعيين is_done=True
+        from analyses.models_todays_analysis import TodaysAnalysis
+        from analyses.models_analysis_request import AnalysisRequest
+        try:
+            # ابحث عن TodaysAnalysis الذي يخص نفس المريض ونوع التحليل ولم يتم تنفيذه بعد
+            todays_analysis = TodaysAnalysis.objects.filter(
+                request__patient=obj.patient,
+                request__test=obj.test,
+                is_done=False
+            ).first()
+            if todays_analysis:
+                todays_analysis.is_done = True
+                todays_analysis.save()
+        except Exception:
+            pass
 
     def test_name(self, obj):
         return obj.test.name

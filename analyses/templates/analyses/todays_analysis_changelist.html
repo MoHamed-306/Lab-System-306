@@ -1,0 +1,22 @@
+{% extends "admin/change_list.html" %}
+{% block content %}
+  <style>
+    /* إخفاء شريط الفلتر الجانبي */
+    #changelist-filter {
+      display: none !important;
+    }
+  </style>
+  <div style="text-align:center; margin-bottom: 10px;">
+    <div style="font-size:1.3em; font-weight:bold; margin-bottom:5px;">
+      اليوم: {{ current_date|date:'l' }}<br>
+      التاريخ: {{ current_date|date:'Y-m-d' }}
+    </div>
+    <a href="{{ prev_url }}" style="font-size:2em; text-decoration:none; margin:0 30px;">&#8592;</a>
+    <form method="get" style="display:inline;">
+      <input type="date" name="date" value="{{ current_date|date:'Y-m-d' }}" style="font-size:1.1em; padding:2px 6px; border-radius:5px; border:1px solid #888;">
+      <button type="submit" style="font-size:1.1em; padding:2px 10px; border-radius:5px; border:1px solid #888; background:#eee; cursor:pointer;">اذهب</button>
+    </form>
+    <a href="{{ next_url }}" style="font-size:2em; text-decoration:none; margin:0 30px;">&#8594;</a>
+  </div>
+  {{ block.super }}
+{% endblock %}

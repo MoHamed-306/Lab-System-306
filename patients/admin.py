@@ -1,17 +1,19 @@
 from django.contrib import admin
 from .models import Patient
+from .models_doctor import Doctor
 from django.utils.html import format_html
 from django.urls import reverse
+from .admin_doctor import *
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-	list_display = ('name', 'age', 'gender_colored', 'national_id', 'doctor_name', 'phone', 'address', 'created_at')
-	search_fields = ('name', 'phone', 'address', 'national_id', 'doctor_name')
+	list_display = ('name', 'age', 'gender_colored', 'national_id', 'phone', 'address', 'created_at')
+	search_fields = ('name', 'phone', 'address', 'national_id')
 	list_filter = ('gender', 'created_at')
 	ordering = ('-created_at',)
 	fieldsets = (
 		('البيانات الأساسية', {
-			'fields': ('name', 'age', 'gender', 'national_id', 'doctor_name')
+			'fields': ('name', 'age', 'gender', 'national_id')
 		}),
 		('معلومات التواصل', {
 			'fields': ('phone', 'address')
@@ -38,7 +40,5 @@ class PatientAdmin(admin.ModelAdmin):
 		return dict(obj.GENDER_CHOICES).get(obj.gender, '-')
 	gender_colored.short_description = 'النوع'
 
-	def doctor_name(self, obj):
-		return obj.doctor_name
-	doctor_name.short_description = 'اسم الدكتور'
+	# لم يعد هناك doctor_name نصي، بل علاقة doctor
 

@@ -9,7 +9,24 @@
 {% if message %}
     <p style="color:red">{{ message }}</p>
 {% endif %}
-{% if pdf_url %}
-    <a href="{{ pdf_url }}" target="_blank">معاينة/تنزيل نتيجة التحليل PDF</a>
+{% if analyses %}
+    <h3>كل التحاليل للمريض: {{ patient.name }}</h3>
+    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+        <tr style="background:#eee;">
+            <th>اسم التحليل</th>
+            <th>تاريخ التحليل</th>
+            <th>خيارات</th>
+        </tr>
+        {% for analysis in analyses %}
+        <tr>
+            <td>{{ analysis.test.name }}</td>
+            <td>{{ analysis.date|date:'Y-m-d H:i' }}</td>
+            <td>
+                <a href="/analyses/analysis/{{ analysis.id }}/report/" target="_blank">معاينة</a> |
+                <a href="/analyses/analysis/{{ analysis.id }}/pdf/" target="_blank">PDF</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endif %}
 {% endblock %}

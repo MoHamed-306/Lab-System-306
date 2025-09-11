@@ -3,7 +3,8 @@ from patients.models import Patient
 # شاشة نتائج التحاليل حسب الرقم القومي
 def analysis_results(request):
 	message = None
-	pdf_url = None
+	analyses = None
+	patient = None
 	form = NationalIDForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
 		national_id = form.cleaned_data['national_id']
@@ -13,12 +14,10 @@ def analysis_results(request):
 			message = 'لا يوجد مريض بهذا الرقم القومي، أو ليس لديك صلاحية الوصول إليه.'
 			patient = None
 		if patient:
-			analysis = patient.analyses.filter(user=request.user).order_by('-date').first()
-			if analysis:
-				pdf_url = f"/analyses/analysis/{analysis.id}/pdf/"
-			else:
-				message = 'لم يتم الانتهاء من التحليل لهذا المريض بعد.'
-	return render(request, 'analyses/analysis_results.html', {'form': form, 'message': message, 'pdf_url': pdf_url})
+			analyses = patient.analyses.filter(user=request.user).order_by('-date')
+			if not analyses.exists():
+				message = 'لم يتم الانتهاء من أي تحليل لهذا المريض بعد.'
+	return render(request, 'analyses/analysis_results.html', {'form': form, 'message': message, 'analyses': analyses, 'patient': patient})
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse

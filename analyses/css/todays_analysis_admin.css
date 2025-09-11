@@ -1,0 +1,2 @@
+/* لون الصف المنفذ (is_done=True) */
+tr.row-is-done { background-color: #d0ffd0 !important; }
