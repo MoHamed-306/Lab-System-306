@@ -25,6 +25,28 @@ class Analysis(models.Model):
 	notes = models.TextField(verbose_name='ملاحظات', blank=True)
 	date = models.DateTimeField(verbose_name='تاريخ ووقت التحليل', auto_now_add=True)
 
+	# حقول القيم الفرعية لتحليل CBC
+	hgb = models.CharField("Hemoglobin (Hgb)", max_length=20, blank=True, null=True)
+	rbcs = models.CharField("Red blood cells (RBCs)", max_length=20, blank=True, null=True)
+	hct = models.CharField("HCT", max_length=20, blank=True, null=True)
+	hgb_percent = models.CharField("Hgb%", max_length=20, blank=True, null=True)
+	mcv = models.CharField("MCV", max_length=20, blank=True, null=True)
+	mch = models.CharField("MCH", max_length=20, blank=True, null=True)
+	mchc = models.CharField("MCHC", max_length=20, blank=True, null=True)
+	rdw_cv = models.CharField("RDW-cv", max_length=20, blank=True, null=True)
+	plt = models.CharField("Platelets (PLT)", max_length=20, blank=True, null=True)
+	wbc = models.CharField("White blood cells (WBCs)", max_length=20, blank=True, null=True)
+	# Differential Count
+	neutrophils = models.CharField("Neutrophils", max_length=20, blank=True, null=True)
+	band = models.CharField("Band", max_length=20, blank=True, null=True)
+	segmented = models.CharField("Segmented", max_length=20, blank=True, null=True)
+	lymphocytes = models.CharField("Lymphocytes", max_length=20, blank=True, null=True)
+	monocytes = models.CharField("Monocytes", max_length=20, blank=True, null=True)
+	eosinophil = models.CharField("Eosinophil", max_length=20, blank=True, null=True)
+	basophils = models.CharField("Basophils", max_length=20, blank=True, null=True)
+	# التعليق
+	comment = models.TextField("Comment", blank=True, null=True)
+
 	def __str__(self):
 		return f"{self.test.name} - {self.patient.name}"
 

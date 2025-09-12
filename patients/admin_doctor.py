@@ -5,6 +5,7 @@ from .models_doctor import Doctor
 class DoctorAdmin(admin.ModelAdmin):
     list_display = ('name', 'specialty', 'phone', 'address')
     search_fields = ('name', 'specialty', 'phone')
+    exclude = ('user',)
 
 
     def get_queryset(self, request):

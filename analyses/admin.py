@@ -32,11 +32,46 @@ class TestCatalogAdmin(admin.ModelAdmin):
 
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):
+    class Media:
+        js = ('analysis_dynamic_fields.js',)
     list_display = ('test_name', 'patient', 'result', 'unit', 'reference_range', 'date', 'print_actions')
     search_fields = ('test__name', 'patient__name', 'result')
     list_filter = ('date', 'test')
     autocomplete_fields = ['patient', 'test']
     exclude = ('user',)
+    def get_fieldsets(self, request, obj=None):
+        # عند الإضافة، لا يوجد obj، لذلك نعتمد على قيمة test في الطلب
+        test_id = request.GET.get('test')
+        from .models import TestCatalog
+        test_name = None
+        if obj and obj.test:
+            test_name = obj.test.name.strip().upper()
+        elif test_id:
+            try:
+                test_obj = TestCatalog.objects.get(id=test_id)
+                test_name = test_obj.name.strip().upper()
+            except TestCatalog.DoesNotExist:
+                pass
+        COMPOSITE_TESTS = ['CBC', 'LFT', 'RFT', 'LIPID', 'THYROID']
+        if test_name in COMPOSITE_TESTS:
+            return (
+                (None, {
+                    'fields': ('patient', 'test', 'notes')
+                }),
+                ('Composite Details', {
+                    'fields': (
+                        'hgb', 'rbcs', 'hct', 'hgb_percent', 'mcv', 'mch', 'mchc', 'rdw_cv', 'plt', 'wbc',
+                        'neutrophils', 'band', 'segmented', 'lymphocytes', 'monocytes', 'eosinophil', 'basophils', 'comment'
+                    ),
+                    'description': 'أدخل القيم الفرعية للتحليل المركب'
+                }),
+            )
+        else:
+            return (
+                (None, {
+                    'fields': ('patient', 'test', 'result', 'notes')
+                }),
+            )
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -110,3 +145,7 @@ class AnalysisResultsLinkAdmin(admin.ModelAdmin):
         return False
     def has_delete_permission(self, request, obj=None):
         return False
+
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
