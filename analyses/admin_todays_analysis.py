@@ -11,6 +11,25 @@ from django.utils.safestring import mark_safe
 @admin.register(TodaysAnalysis)
 class TodaysAnalysisAdmin(admin.ModelAdmin):
     change_list_template = "analyses/todays_analysis_changelist.html"
+    def get_queryset(self, request):
+        import datetime
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        date_str = request.GET.get('date')
+        if date_str:
+            try:
+                current_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except Exception:
+                current_date = timezone.localdate()
+        else:
+            current_date = timezone.localdate()
+        # تصفية حسب اليوم والمستخدم الحالي
+        qs = qs.filter(created_at__date=current_date, request__user=request.user).select_related('request__patient', 'request__test', 'request__doctor')
+        # ترقيم الصفوف تسلسلي
+        for idx, obj in enumerate(qs, 1):
+            obj._row_number = idx
+        return qs
     def changelist_view(self, request, extra_context=None):
         import datetime
         date_str = request.GET.get('date')
@@ -51,23 +70,7 @@ class TodaysAnalysisAdmin(admin.ModelAdmin):
         return CustomChangeList
     list_display = ('patient', 'test', 'doctor', 'is_done', 'created_at', 'print_pdf')
 
-    def get_queryset(self, request):
-        import datetime
-        qs = super().get_queryset(request)
-        date_str = request.GET.get('date')
-        if date_str:
-            try:
-                current_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
-            except Exception:
-                current_date = timezone.localdate()
-        else:
-            current_date = timezone.localdate()
-        # تصفية حسب اليوم
-        qs = qs.filter(created_at__date=current_date).select_related('request__patient', 'request__test', 'request__doctor')
-        # ترقيم الصفوف تسلسلي
-        for idx, obj in enumerate(qs, 1):
-            obj._row_number = idx
-        return qs
+    # ...existing code...
 
     def print_pdf(self, obj):
         # رابط طباعة/تنزيل PDF لنفس المريض والتحليل

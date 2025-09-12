@@ -3,11 +3,11 @@ from analyses.models import TestCatalog
 try:
     TestCatalog.objects.all().delete()
     tests = [
-        {"name": "صورة دم كاملة (CBC)", "unit": "", "reference_range": "", "description": "تحليل مكونات الدم"},
-        {"name": "سكر صائم", "unit": "mg/dL", "reference_range": "70-110", "description": "قياس مستوى السكر بعد صيام 8 ساعات"},
-        {"name": "سكر عشوائي", "unit": "mg/dL", "reference_range": "< 200", "description": "قياس مستوى السكر في أي وقت"},
-        {"name": "هيموجلوبين", "unit": "g/dL", "reference_range": "13-17 (رجال) 12-15 (نساء)", "description": "قياس نسبة الهيموجلوبين في الدم"},
-        {"name": "وظائف كبد (ALT)", "unit": "U/L", "reference_range": "7-56", "description": "تحليل إنزيمات الكبد ALT"},
+        {"name": "CBC", "unit": "", "reference_range": "", "description": "صورة دم كاملة"},
+        {"name": "Fasting Blood Sugar", "unit": "mg/dL", "reference_range": "70-110", "description": "سكر صائم"},
+        {"name": "Random Blood Sugar", "unit": "mg/dL", "reference_range": "< 200", "description": "سكر عشوائي"},
+        {"name": "Hemoglobin", "unit": "g/dL", "reference_range": "13-17 (رجال) 12-15 (نساء)", "description": "هيموجلوبين"},
+        {"name": "ALT", "unit": "U/L", "reference_range": "7-56", "description": "وظائف كبد (ALT)"},
         {"name": "وظائف كبد (AST)", "unit": "U/L", "reference_range": "10-40", "description": "تحليل إنزيمات الكبد AST"},
         {"name": "وظائف كبد (ALP)", "unit": "U/L", "reference_range": "44-147", "description": "تحليل إنزيم الفوسفاتاز القلوي"},
         {"name": "جاما جي تي (GGT)", "unit": "U/L", "reference_range": "9-48", "description": "تحليل إنزيم GGT للكبد"},

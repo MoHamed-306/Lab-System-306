@@ -14,17 +14,13 @@ class TestCatalogAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
-        # Mohamed306 يرى كل شيء، الباقي يرون العام وتحاليلهم فقط
-        return qs.filter(
-            models.Q(user=None) |
-            models.Q(user__username='Mohamed306') |
-            models.Q(user=request.user)
-        )
+        # التحاليل العامة (user=None) متاحة للجميع، أما التحاليل الخاصة تظهر فقط لصاحبها
+        return qs.filter(models.Q(user=None) | models.Q(user=request.user))
 
     def save_model(self, request, obj, form, change):
         if not change:
-            # إذا كان المستخدم Mohamed306 أو مشرف، التحليل عام
-            if request.user.is_superuser or request.user.username == 'Mohamed306':
+            # إذا كان المستخدم سوبر يوزر، التحليل عام
+            if request.user.is_superuser:
                 obj.user = None
             else:
                 obj.user = request.user
@@ -40,33 +36,7 @@ class AnalysisAdmin(admin.ModelAdmin):
     autocomplete_fields = ['patient', 'test']
     exclude = ('user',)
     def get_fieldsets(self, request, obj=None):
-        # عند الإضافة، لا يوجد obj، لذلك نعتمد على قيمة test في الطلب
-        test_id = request.GET.get('test')
-        from .models import TestCatalog
-        test_name = None
-        if obj and obj.test:
-            test_name = obj.test.name.strip().upper()
-        elif test_id:
-            try:
-                test_obj = TestCatalog.objects.get(id=test_id)
-                test_name = test_obj.name.strip().upper()
-            except TestCatalog.DoesNotExist:
-                pass
-        COMPOSITE_TESTS = ['CBC', 'LFT', 'RFT', 'LIPID', 'THYROID']
-        if test_name in COMPOSITE_TESTS:
-            return (
-                (None, {
-                    'fields': ('patient', 'test', 'notes')
-                }),
-                ('Composite Details', {
-                    'fields': (
-                        'hgb', 'rbcs', 'hct', 'hgb_percent', 'mcv', 'mch', 'mchc', 'rdw_cv', 'plt', 'wbc',
-                        'neutrophils', 'band', 'segmented', 'lymphocytes', 'monocytes', 'eosinophil', 'basophils', 'comment'
-                    ),
-                    'description': 'أدخل القيم الفرعية للتحليل المركب'
-                }),
-            )
-        else:
+        # دائماً أظهر كل الحقول، والجافاسكريبت يتحكم في الإظهار
             return (
                 (None, {
                     'fields': ('patient', 'test', 'result', 'notes')
