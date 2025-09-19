@@ -1,5 +1,109 @@
 {% extends "admin/base.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{# Clean admin base_site: minimal safe JS to translate Add and move patients module after analyses #}
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            // Translate 'Add' labels to Arabic
+            document.querySelectorAll('a, button, input[type=button], input[type=submit]').forEach(function(el) {
+                var txt = (el.textContent || el.value || '').trim();
+                if (!txt) return;
+                if (txt === 'Add') {
+                    if (el.tagName === 'INPUT') el.value = 'إضافة'; else el.textContent = 'إضافة';
+                } else if (txt.startsWith('Add ')) {
+                    var rest = txt.slice(4);
+                    if (el.tagName === 'INPUT') el.value = 'إضافة ' + rest; else el.textContent = 'إضافة ' + rest;
+                }
+            });
+
+            document.querySelectorAll('a.addlink').forEach(function(a){
+                var t = a.textContent.trim();
+                if (t === 'Add') a.textContent = 'إضافة';
+                else if (t.startsWith('Add ')) a.textContent = 'إضافة ' + t.slice(4);
+            });
+
+            // إعادة ترتيب شاشات قسم التحاليل في الشريط الجانبي حسب الترتيب المطلوب
+            (function robustReorderAnalysesSidebar(){
+                var desired = [
+                    {slug: 'analysisrequest', name: 'طلبات التحليل'},
+                    {slug: 'todaysanalysis', name: 'تحاليل اليوم'},
+                    {slug: 'analysisresultslink', name: 'الاستعلام عن التحليل'},
+                    {slug: 'testcatalog', name: 'كتالوج التحاليل'},
+                    {slug: 'analysis', name: 'التحاليل'}
+                ];
+                var tries = 0, maxTries = 30;
+                var interval = setInterval(function(){
+                    tries++;
+                    var modules = Array.from(document.querySelectorAll('.app-list, .module, .grp-module'));
+                    var analysesModule = modules.find(function(mod){
+                        return (mod.textContent||'').indexOf('التحاليل') !== -1;
+                    });
+                    if(!analysesModule) { if(tries>=maxTries) clearInterval(interval); return; }
+                    var listParent = analysesModule.querySelector('ul');
+                    if(!listParent) { if(tries>=maxTries) clearInterval(interval); return; }
+                    var lis = Array.from(listParent.querySelectorAll('li'));
+                    var nodes = [];
+                    desired.forEach(function(item){
+                        var li = lis.find(function(li){
+                            var a = li.querySelector('a');
+                            if(!a) return false;
+                            var h = a.getAttribute('href')||'';
+                            return h.indexOf('/admin/analyses/'+item.slug+'/') !== -1 || (a.textContent||'').trim().indexOf(item.name) !== -1;
+                        });
+                        if(li && nodes.indexOf(li) === -1) nodes.push(li);
+                    });
+                    if(nodes.length){
+                        nodes.forEach(function(n){ listParent.appendChild(n); });
+                        console.log('تحقق ترتيب التحاليل (محاولة رقم ' + tries + ')');
+                        if(tries>=2) clearInterval(interval); // أوقف بعد أول نجاحين متتاليين
+                    }
+                    if(tries>=maxTries) clearInterval(interval);
+                }, 200);
+            })();
+
+            // Move 'patients' module to appear after 'analyses' using MutationObserver when sidebar loads
+            (function(){
+                function findModuleByApp(appPrefix){
+                    var modules = Array.from(document.querySelectorAll('.app-list, .module, .grp-module'));
+                    for(var i=0;i<modules.length;i++){
+                        var mod = modules[i];
+                        var anchors = Array.from(mod.querySelectorAll('a'));
+                        for(var j=0;j<anchors.length;j++){
+                            var h = anchors[j].getAttribute('href') || '';
+                            if(h.indexOf('/admin/' + appPrefix + '/') !== -1) return mod;
+                        }
+                    }
+                    return null;
+                }
+
+                function tryMove(){
+                    var analysesModule = findModuleByApp('analyses');
+                    var patientsModule = findModuleByApp('patients');
+                    if(analysesModule && patientsModule && analysesModule.parentElement === patientsModule.parentElement){
+                        analysesModule.parentElement.insertBefore(patientsModule, analysesModule.nextSibling);
+                        return true;
+                    }
+                    return false;
+                }
+
+                if(!tryMove()){
+                    var obs = new MutationObserver(function(mutations, observer){
+                        if(tryMove()) observer.disconnect();
+                    });
+                    obs.observe(document.body, {childList:true, subtree:true});
+                    setTimeout(function(){ try{ obs.disconnect(); }catch(e){} }, 5000);
+                }
+            })();
+
+        } catch(e){ console.error('admin base_site script error', e); }
+    });
+    </script>
+
+    <script src="{% static 'analyses/auto_fill_price.js' %}"></script>
+{% endblock %}
 
 {% block branding %}
   <h1 id="site-name">

@@ -66,7 +66,7 @@ class AnalysisAdmin(admin.ModelAdmin):
 
         # بعد حفظ التحليل، إذا كان هناك TodaysAnalysis مرتبط بنفس الطلب، يتم تعيين is_done=True
         from analyses.models_todays_analysis import TodaysAnalysis
-        from analyses.models_analysis_request import AnalysisRequest
+        from analyses.models import AnalysisRequest
         try:
             # ابحث عن TodaysAnalysis الذي يخص نفس المريض ونوع التحليل ولم يتم تنفيذه بعد
             todays_analysis = TodaysAnalysis.objects.filter(

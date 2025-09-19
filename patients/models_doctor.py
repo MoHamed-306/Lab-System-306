@@ -9,3 +9,7 @@ class Doctor(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.specialty}"
+
+    class Meta:
+        verbose_name = 'الطبيب'
+        verbose_name_plural = 'الأطباء'

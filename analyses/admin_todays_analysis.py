@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models_todays_analysis import TodaysAnalysis
-from .models_analysis_request import AnalysisRequest
+from .models import AnalysisRequest
 from .models import Analysis
 from django.urls import reverse
 from django.utils.html import format_html
@@ -25,7 +25,10 @@ class TodaysAnalysisAdmin(admin.ModelAdmin):
         else:
             current_date = timezone.localdate()
         # تصفية حسب اليوم والمستخدم الحالي
-        qs = qs.filter(created_at__date=current_date, request__user=request.user).select_related('request__patient', 'request__test', 'request__doctor')
+        qs = qs.filter(
+            created_at__date=current_date,
+            request__user=request.user,
+        ).select_related('request__patient', 'request__test', 'request__doctor')
         # ترقيم الصفوف تسلسلي
         for idx, obj in enumerate(qs, 1):
             obj._row_number = idx
@@ -107,6 +110,9 @@ class TodaysAnalysisAdmin(admin.ModelAdmin):
     def test(self, obj):
         return obj.request.test
     def doctor(self, obj):
-        return obj.request.doctor
+        # Return the doctor stored on the AnalysisRequest (newly added field), fall back to patient.doctor
+        if hasattr(obj.request, 'doctor') and obj.request.doctor:
+            return obj.request.doctor
+        return getattr(obj.request.patient, 'doctor', None)
 
 

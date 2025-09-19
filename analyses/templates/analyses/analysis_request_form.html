@@ -1,0 +1,47 @@
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <!-- حقول موجودة أخرى -->
+  <div class="form-group">
+    <label for="id_price">السعر</label>
+    {{ form.price }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_discount_percent">نسبة الخصم (%)</label>
+    {{ form.discount_percent }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_discount_amount">قيمة الخصم</label>
+    {{ form.discount_amount }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_total">الإجمالي</label>
+    {{ form.total }}
+  </div>
+
+  <button type="submit" class="btn btn-primary">حفظ</button>
+</form>
+
+<script>
+(function(){
+  const price = document.querySelector('[name="price"]');
+  const pct = document.querySelector('[name="discount_percent"]');
+  const amt = document.querySelector('[name="discount_amount"]');
+  const total = document.querySelector('[name="total"]');
+
+  function calc(){
+    const p = parseFloat(price?.value || 0);
+    const d = parseFloat(pct?.value || 0);
+    const da = +(p * d / 100).toFixed(2);
+    const t = +(p - da).toFixed(2);
+    if(amt) amt.value = da;
+    if(total) total.value = t;
+  }
+
+  [price, pct].forEach(el => el && el.addEventListener('input', calc));
+  calc();
+})();
+</script>

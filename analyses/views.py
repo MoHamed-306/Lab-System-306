@@ -24,6 +24,8 @@ from django.http import HttpResponse
 from .models import Analysis
 from django.template.loader import render_to_string
 import weasyprint
+from django.http import JsonResponse
+from .models import TestCatalog
 
 # عرض صفحة تقرير التحليل مع زر الطباعة وحفظ PDF
 def analysis_report(request, analysis_id):
@@ -38,3 +40,12 @@ def analysis_pdf(request, analysis_id):
 	response = HttpResponse(pdf, content_type='application/pdf')
 	response['Content-Disposition'] = f'attachment; filename="analysis_{analysis_id}.pdf"' 
 	return response
+
+
+def test_price(request, test_id):
+	"""Return JSON with the price for a TestCatalog item."""
+	try:
+		test = TestCatalog.objects.get(id=test_id)
+		return JsonResponse({'price': str(test.price)})
+	except TestCatalog.DoesNotExist:
+		return JsonResponse({'price': None}, status=404)
